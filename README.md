@@ -1,1 +1,2 @@
 # FlatWorld
+MonoGame capabilities

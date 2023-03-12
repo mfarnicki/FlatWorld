@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
 using Microsoft.Xna.Framework;
@@ -17,8 +18,6 @@ public class DesktopGame : Game
     private FlatScreen screen;
     private FlatShapes shapes;
     private Texture2D texture;
-
-    private int x = 32;
 
     public DesktopGame()
     {
@@ -53,18 +52,29 @@ public class DesktopGame : Game
         FlatKeyboard keyboard = FlatKeyboard.Instance;
         keyboard.Update();
 
+        FlatMouse mouse = FlatMouse.Instance;
+        mouse.Update();
+
         if (keyboard.IsKeyClicked(Keys.Escape))
         {
             this.Exit();
         }
 
-        if (keyboard.IsKeyClicked(Keys.Right))
+        if (keyboard.IsKeyClicked(Keys.OemTilde))
         {
-            x += 32;
-            Console.WriteLine("Right key clicked.");
+            Console.WriteLine($"Mouse window pos: {mouse.WindowPosition}");
+            Console.WriteLine($"Screen position: {mouse.GetScreenPosition(this.screen)}");
         }
 
-        // TODO: Add your update logic here
+        if (mouse.IsLeftButtonClicked())
+        {
+            Console.WriteLine("Left mouse clicked");
+        }
+
+        if (mouse.IsLeftButtonDown())
+        {
+            Console.WriteLine("Left mouse down");
+        }
 
         base.Update(gameTime);
     }
@@ -75,14 +85,11 @@ public class DesktopGame : Game
         Viewport vp = this.GraphicsDevice.Viewport;
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // this.sprites.Begin();
-        // this.sprites.Draw(this.texture, null, new Rectangle(x, 32, 512, 256), Color.White);
-        // this.sprites.End();
+        this.sprites.Begin();
+        this.sprites.Draw(this.texture, null, new Rectangle(32, 32, 512, 256), Color.White);
+        this.sprites.End();
 
         this.shapes.Begin();
-        this.shapes.DrawRectangle(100 + x, 100, 64, 64, Color.Red);
-        this.shapes.DrawRectangle(200 - x, 200, 64, 64, Color.Blue);
-        this.shapes.DrawRectangle(300 + x, 300, 64 + 2 * x, 64, Color.Green);
         this.shapes.End();
 
         this.screen.UnSet();

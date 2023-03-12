@@ -4,14 +4,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FlatWorld.Engine.Graphics;
 
-public sealed class Sprites : IDisposable
+public sealed class FlatSprites : IDisposable
 {
     private bool isDisposed;
     private Game game;
     private SpriteBatch sprites;
     private BasicEffect effect;
 
-    public Sprites(Game game)
+    public FlatSprites(Game game)
     {
         this.game = game ?? throw new ArgumentNullException(nameof(game));
         this.sprites = new SpriteBatch(this.game.GraphicsDevice);

@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace FlatWorld.Engine.Graphics;
 
-public sealed class Screen : IDisposable
+public sealed class FlatScreen : IDisposable
 {
     private const int MinDim = 64;
     private const int MaxDim = 4096;
@@ -16,12 +16,12 @@ public sealed class Screen : IDisposable
     public int Width => this.target.Width;
     public int Height => this.target.Height;
 
-    public Screen(Game game, int width, int height)
+    public FlatScreen(Game game, int width, int height)
     {
         this.game = game ?? throw new ArgumentNullException(nameof(game));
 
-        width = MathHelper.Clamp(width, Screen.MinDim, Screen.MaxDim);
-        height = MathHelper.Clamp(height, Screen.MinDim, Screen.MaxDim);
+        width = MathHelper.Clamp(width, FlatScreen.MinDim, FlatScreen.MaxDim);
+        height = MathHelper.Clamp(height, FlatScreen.MinDim, FlatScreen.MaxDim);
 
         this.target = new RenderTarget2D(this.game.GraphicsDevice, width, height);
     }
@@ -47,7 +47,7 @@ public sealed class Screen : IDisposable
         this.game.GraphicsDevice.SetRenderTarget(null);
     }
 
-    public void Present(Sprites sprites, bool textureFiltering = true)
+    public void Present(FlatSprites sprites, bool textureFiltering = true)
     {
         if (sprites is null)
         {
@@ -67,7 +67,7 @@ public sealed class Screen : IDisposable
         sprites.End();
     }
 
-    private Rectangle CalculateDestinationRectangle()
+    internal Rectangle CalculateDestinationRectangle()
     {
         Rectangle backBufferBounds = this.game.GraphicsDevice.PresentationParameters.Bounds;
         float backBufferAspectRatio = (float)backBufferBounds.Width / backBufferBounds.Height;

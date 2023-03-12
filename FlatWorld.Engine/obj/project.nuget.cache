@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "htxjEnQpmz4L0GyUZn2qEY6KGymyFl34HjPAUbOk8zZPCaZg/2SRVWsjUruozF6ISQITxSNZTP72mY43WbI5og==",
+  "dgSpecHash": "BQpQ0uDnn/HG0xST0pceUgjNe1doZrdbjqD86mSgTfLaeA8DNyATVb17/53dyH7/IwFB9Vx/DNbRKa/EZN3RLw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
+  "projectFilePath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\mfarn\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.1.303\\monogame.framework.desktopgl.3.8.1.303.nupkg.sha512"
   ],

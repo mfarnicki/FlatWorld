@@ -85,11 +85,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
+      "projectUniqueName": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
       "projectName": "FlatWorld.Engine",
-      "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
+      "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj",
       "packagesPath": "C:\\Users\\mfarn\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\obj\\",
+      "outputPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mfarn\\AppData\\Roaming\\NuGet\\NuGet.Config"

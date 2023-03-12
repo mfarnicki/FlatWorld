@@ -123,11 +123,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Desktop\\FlatWorld.Desktop.csproj",
+      "projectUniqueName": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Desktop\\FlatWorld.Desktop.csproj",
       "projectName": "FlatWorld.Desktop",
-      "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Desktop\\FlatWorld.Desktop.csproj",
+      "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Desktop\\FlatWorld.Desktop.csproj",
       "packagesPath": "C:\\Users\\mfarn\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Desktop\\obj\\",
+      "outputPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Desktop\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\mfarn\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -142,8 +142,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj": {
-              "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj"
+            "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj": {
+              "projectPath": "C:\\Users\\mfarn\\Documents\\Projects\\FlatWorld\\FlatWorld.Engine\\FlatWorld.Engine.csproj"
             }
           }
         }

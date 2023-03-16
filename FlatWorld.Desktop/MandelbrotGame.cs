@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
 using Microsoft.Xna.Framework;
@@ -8,12 +7,10 @@ using Microsoft.Xna.Framework.Input;
 
 namespace FlatWorld.Desktop;
 
-public class DesktopGame : Game
+public class MandelbrotGame : Game
 {
     private const int ScreenWidth = 1280;
     private const int ScreenHeight = 720;
-    // private const int ScreenWidth = 400;
-    // private const int ScreenHeight = 300;
 
     private GraphicsDeviceManager graphics;
     private FlatSprites sprites;
@@ -29,7 +26,10 @@ public class DesktopGame : Game
 
     private int iterations = 0;
 
-    public DesktopGame()
+    private Rectangle selectionRectangle;
+    private Vector4 currentRectangle;
+
+    public MandelbrotGame()
     {
         this.graphics = new GraphicsDeviceManager(this);
         this.graphics.SynchronizeWithVerticalRetrace = true;
@@ -41,32 +41,41 @@ public class DesktopGame : Game
 
     protected override void Initialize()
     {
-        this.graphics.PreferredBackBufferWidth = DesktopGame.ScreenWidth;
-        this.graphics.PreferredBackBufferHeight = DesktopGame.ScreenHeight;
+        this.graphics.PreferredBackBufferWidth = MandelbrotGame.ScreenWidth;
+        this.graphics.PreferredBackBufferHeight = MandelbrotGame.ScreenHeight;
         this.graphics.ApplyChanges();
 
         this.sprites = new FlatSprites(this);
-        this.screen = new FlatScreen(this, DesktopGame.ScreenWidth, DesktopGame.ScreenHeight);
+        this.screen = new FlatScreen(this, MandelbrotGame.ScreenWidth, MandelbrotGame.ScreenHeight);
         this.shapes = new FlatShapes(this);
 
-        this.textureTest = new Texture2D(this.GraphicsDevice, DesktopGame.ScreenWidth, DesktopGame.ScreenHeight);
+        this.textureTest = new Texture2D(this.GraphicsDevice, MandelbrotGame.ScreenWidth, MandelbrotGame.ScreenHeight);
 
-        this.colors = new Color[DesktopGame.ScreenWidth * DesktopGame.ScreenHeight];
+        this.colors = new Color[MandelbrotGame.ScreenWidth * MandelbrotGame.ScreenHeight];
 
-        this.results = new float[DesktopGame.ScreenWidth * DesktopGame.ScreenHeight * 2];
-        this.pixelCoords = new float[DesktopGame.ScreenWidth * DesktopGame.ScreenHeight * 2];
+        this.results = new float[MandelbrotGame.ScreenWidth * MandelbrotGame.ScreenHeight * 2];
+        this.pixelCoords = new float[MandelbrotGame.ScreenWidth * MandelbrotGame.ScreenHeight * 2];
 
-        float halfWidth = ScreenWidth / 2f;
-        float halfHeight = ScreenHeight / 2f;
-        float quarterWidth = ScreenWidth / 4f;
+        this.selectionRectangle = Rectangle.Empty;
+
+        this.InitPixels(-2.5f, 1f, 0.5f, -1f);
+
+        base.Initialize();
+    }
+
+    private void InitPixels(float left, float top, float right, float bottom)
+    {
+        this.currentRectangle = new Vector4(left, top, right, bottom);
+        float width = right - left;
+        float height = top - bottom;
 
         for (int i = 0; i < this.pixelCoords.Length; i += 2)
         {
-            int x = i / 2 % ScreenWidth;
-            int y = i / 2 / ScreenWidth;
+            float x = i / 2f % MandelbrotGame.ScreenWidth;
+            float y = i / 2f / MandelbrotGame.ScreenWidth;
 
-            float ax = (x - halfWidth) / quarterWidth - 1;
-            float ay = (y - halfHeight) / halfHeight;
+            float ax = left + (x / MandelbrotGame.ScreenWidth) * width;
+            float ay = bottom + (y / MandelbrotGame.ScreenHeight) * height;
 
             this.pixelCoords[i] = ax;
             this.pixelCoords[i + 1] = ay;
@@ -77,7 +86,7 @@ public class DesktopGame : Game
             this.colors[i / 2] = Color.Black;
         }
 
-        base.Initialize();
+        iterations = 0;
     }
 
     protected override void LoadContent()
@@ -93,6 +102,13 @@ public class DesktopGame : Game
         FlatMouse mouse = FlatMouse.Instance;
         mouse.Update();
 
+        Vector2 mousePos = mouse.GetScreenPosition(this.screen);
+        int oneSixthWidth = ScreenWidth / 6;
+        int oneSixthHeight = ScreenHeight / 6;
+        int newPosX = MathHelper.Clamp((int)mousePos.X, ScreenWidth / 6, ScreenWidth - ScreenWidth / 6);
+        int newPosY = MathHelper.Clamp((int)mousePos.Y, ScreenHeight / 6, ScreenHeight - ScreenHeight / 6);
+        this.selectionRectangle = new Rectangle(newPosX - oneSixthWidth, newPosY - oneSixthHeight, newPosX + oneSixthWidth, newPosY + oneSixthHeight);
+
         if (keyboard.IsKeyClicked(Keys.Escape))
         {
             this.Exit();
@@ -104,7 +120,30 @@ public class DesktopGame : Game
             Console.WriteLine($"Screen position: {mouse.GetScreenPosition(this.screen)}");
         }
 
-        Color newColor = new Color((iterations * 8) % 255, (iterations * 6) % 255, 255);
+        if (mouse.IsLeftButtonClicked())
+        {
+            float left = this.currentRectangle.X;
+            float top = this.currentRectangle.Y;
+            float right = this.currentRectangle.Z;
+            float bottom = this.currentRectangle.W;
+
+            float width = right - left;
+            float height = top - bottom;
+
+            float newLeft = left + (float)this.selectionRectangle.Left / ScreenWidth * width;
+            float newRight = left + (float)this.selectionRectangle.Width / ScreenWidth * width;
+            float newTop = bottom + (float)(480 - this.selectionRectangle.Top) / ScreenHeight * height;
+            float newBottom = bottom + (float)this.selectionRectangle.Height / ScreenHeight * height;
+
+            this.InitPixels(newLeft, newTop, newRight, newBottom);
+        }
+
+        if (mouse.IsRightButtonClicked())
+        {
+            this.InitPixels(-2.5f, 1f, 0.5f, -1f);
+        }
+
+        Color newColor = new Color((iterations * 8) % 255, (iterations * 8) % 255, 255);
 
         for (int i = 0; i < this.pixelCoords.Length; i += 2)
         {
@@ -143,10 +182,14 @@ public class DesktopGame : Game
     {
         this.screen.Set();
 
-        this.sprites.Begin();
+        this.sprites.Begin(null);
         // this.sprites.Draw(this.texture, null, new Rectangle(32, 32, 512, 256), Color.White);
         this.sprites.Draw(this.textureTest, Vector2.Zero, Vector2.Zero, Color.White);
         this.sprites.End();
+
+        this.shapes.Begin(null);
+        this.shapes.DrawRectangle(this.selectionRectangle, 1f, Color.DarkRed);
+        this.shapes.End();
 
         this.screen.UnSet();
         this.screen.Present(this.sprites);

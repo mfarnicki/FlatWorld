@@ -1,4 +1,5 @@
 using System;
+using FlatWorld.Engine;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
 using Microsoft.Xna.Framework;
@@ -20,7 +21,7 @@ public class TestGame : Game
 
     private Texture2D texture;
 
-    private Vector2[] vertices;
+    private Circle[] circles;
 
     public TestGame()
     {
@@ -45,15 +46,20 @@ public class TestGame : Game
 
         Random rand = new Random();
 
-        int vertexCount = 5;
-        this.vertices = new Vector2[vertexCount];
+        this.camera.GetExtents(out Vector2 min, out Vector2 max);
 
-        for (int i = 0; i < this.vertices.Length; i++)
+        this.circles = new Circle[1000];
+
+        for (int i = 0; i < this.circles.Length; i++)
         {
-            float x = rand.Next() % this.screen.Width - this.screen.Width / 2;
-            float y = rand.Next() % this.screen.Height - this.screen.Height / 2;
+            float x = min.X + rand.NextSingle() * (max.X - min.X);
+            float y = min.Y + rand.NextSingle() * (max.Y - min.Y);
 
-            this.vertices[i] = new Vector2(x, y);
+            int r = (int)(rand.NextSingle() * 255);
+            int g = (int)(rand.NextSingle() * 255);
+            int b = (int)(rand.NextSingle() * 255);
+
+            this.circles[i] = new Circle(x, y, new Color(r, g, b));
         }
 
         base.Initialize();
@@ -84,18 +90,6 @@ public class TestGame : Game
             Console.WriteLine("CamMax: " + max);
         }
 
-        if (keyboard.IsKeyClicked(Keys.S))
-        {
-            Random rand = new Random();
-            for (int i = 0; i < this.vertices.Length; i++)
-            {
-                float x = rand.Next() % this.screen.Width - this.screen.Width / 2;
-                float y = rand.Next() % this.screen.Height - this.screen.Height / 2;
-
-                this.vertices[i] = new Vector2(x, y);
-            }
-        }
-
         if (keyboard.IsKeyClicked(Keys.A))
         {
             this.camera.IncZoom();
@@ -104,6 +98,11 @@ public class TestGame : Game
         if (keyboard.IsKeyClicked(Keys.Z))
         {
             this.camera.DecZoom();
+        }
+
+        if (keyboard.IsKeyClicked(Keys.F))
+        {
+            FlatUtil.ToggleFullScreen(this.graphics);
         }
 
         base.Update(gameTime);
@@ -119,17 +118,32 @@ public class TestGame : Game
         this.sprites.End();
 
         this.shapes.Begin(this.camera);
-        // this.shapes.DrawRectangleFill(32, 0, 24, 77, Color.DarkOliveGreen);
-        // this.shapes.DrawLine(new Vector2(-24, 0), new Vector2(15, 35), 3f, Color.DarkGoldenrod);
 
-        // this.shapes.DrawRectangle(-64, 0, 64, 64, 1f, Color.White);
-        // this.shapes.DrawCircle(0, 32, 32, 1f, 48, Color.White);
-        this.shapes.DrawPolygon(this.vertices, 1f, Color.White);
+        for (int i = 0; i < this.circles.Length; i++)
+        {
+            var circle = this.circles[i];
+            this.shapes.DrawCircle(circle.X, circle.Y, 32, 1f, 32, circle.Color);
+        }
+
         this.shapes.End();
 
         this.screen.UnSet();
         this.screen.Present(this.sprites);
 
         base.Draw(gameTime);
+    }
+
+    protected struct Circle
+    {
+        public readonly float X;
+        public readonly float Y;
+        public readonly Color Color;
+
+        public Circle(float x, float y, Color color)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Color = color;
+        }
     }
 }

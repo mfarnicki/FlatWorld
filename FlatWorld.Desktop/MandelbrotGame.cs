@@ -188,7 +188,7 @@ public class MandelbrotGame : Game
         this.sprites.End();
 
         this.shapes.Begin(null);
-        this.shapes.DrawRectangle(this.selectionRectangle, 1f, Color.DarkRed);
+        this.shapes.DrawRectangle(this.selectionRectangle.X, this.selectionRectangle.Y, this.selectionRectangle.Width, this.selectionRectangle.Height, 1f, Color.DarkRed);
         this.shapes.End();
 
         this.screen.UnSet();

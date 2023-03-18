@@ -21,7 +21,8 @@ public class TestGame : Game
 
     private Texture2D texture;
 
-    private Circle[] circles;
+    private Vector2[] vertices;
+    private float angle = 0f;
 
     public TestGame()
     {
@@ -44,23 +45,12 @@ public class TestGame : Game
         this.shapes = new FlatShapes(this);
         this.camera = new FlatCamera(this.screen);
 
-        Random rand = new Random();
-
-        this.camera.GetExtents(out Vector2 min, out Vector2 max);
-
-        this.circles = new Circle[1000];
-
-        for (int i = 0; i < this.circles.Length; i++)
-        {
-            float x = min.X + rand.NextSingle() * (max.X - min.X);
-            float y = min.Y + rand.NextSingle() * (max.Y - min.Y);
-
-            int r = (int)(rand.NextSingle() * 255);
-            int g = (int)(rand.NextSingle() * 255);
-            int b = (int)(rand.NextSingle() * 255);
-
-            this.circles[i] = new Circle(x, y, new Color(r, g, b));
-        }
+        this.vertices = new Vector2[5];
+        this.vertices[0] = new Vector2(0, 10);
+        this.vertices[1] = new Vector2(10, -10);
+        this.vertices[2] = new Vector2(3, -6);
+        this.vertices[3] = new Vector2(-3, -6);
+        this.vertices[4] = new Vector2(-10, -10);
 
         base.Initialize();
     }
@@ -105,6 +95,8 @@ public class TestGame : Game
             FlatUtil.ToggleFullScreen(this.graphics);
         }
 
+        this.angle += MathHelper.PiOver2 * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         base.Update(gameTime);
     }
 
@@ -117,33 +109,17 @@ public class TestGame : Game
         // this.sprites.Draw(texture, null, new Vector2(8, 8), Vector2.Zero, MathHelper.TwoPi / 100f, new Vector2(2f, 2f), Color.White);
         this.sprites.End();
 
+        // Matrix transform = Matrix.CreateScale(1f) * Matrix.CreateRotationZ(MathHelper.TwoPi / 10f) * Matrix.CreateTranslation(0f, 100f, 0f);
+        FlatTransform transform = new FlatTransform(new Vector2(0f, 100f), this.angle, 2f);
+
         this.shapes.Begin(this.camera);
-
-        for (int i = 0; i < this.circles.Length; i++)
-        {
-            var circle = this.circles[i];
-            this.shapes.DrawCircle(circle.X, circle.Y, 32, 1f, 32, circle.Color);
-        }
-
+        this.shapes.DrawPolygon(this.vertices, transform, 1f, Color.White);
+        this.shapes.DrawCircleFill(-32, -32, 64, 48, Color.White);
         this.shapes.End();
 
         this.screen.UnSet();
         this.screen.Present(this.sprites);
 
         base.Draw(gameTime);
-    }
-
-    protected struct Circle
-    {
-        public readonly float X;
-        public readonly float Y;
-        public readonly Color Color;
-
-        public Circle(float x, float y, Color color)
-        {
-            this.X = x;
-            this.Y = y;
-            this.Color = color;
-        }
     }
 }

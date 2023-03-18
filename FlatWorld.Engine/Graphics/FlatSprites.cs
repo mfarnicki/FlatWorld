@@ -40,11 +40,23 @@ public sealed class FlatSprites : IDisposable
         this.isDisposed = true;
     }
 
-    public void Begin(bool textureFiltering = false)
+    public void Begin(FlatCamera camera, bool textureFiltering = false)
     {
         SamplerState sampler = textureFiltering ? SamplerState.LinearClamp : SamplerState.PointClamp;
-        Viewport vp = this.game.GraphicsDevice.Viewport;
-        this.effect.Projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, 0, vp.Height, 0f, 1f);
+
+        if (camera is null)
+        {
+            Viewport vp = this.game.GraphicsDevice.Viewport;
+            this.effect.View = Matrix.Identity;
+            this.effect.Projection = Matrix.CreateOrthographicOffCenter(0, vp.Width, 0, vp.Height, 0f, 1f);
+        }
+        else
+        {
+            camera.UpdateMatrices();
+
+            this.effect.View = camera.View;
+            this.effect.Projection = camera.Projection;
+        }
 
         this.sprites.Begin(blendState: BlendState.AlphaBlend, samplerState: sampler, rasterizerState: RasterizerState.CullNone, effect: this.effect);
     }

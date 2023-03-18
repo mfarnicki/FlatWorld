@@ -22,6 +22,7 @@ public class TestGame : Game
     private Texture2D texture;
 
     private Vector2[] vertices;
+    private int[] triangleIndices;
     private float angle = 0f;
 
     public TestGame()
@@ -51,6 +52,19 @@ public class TestGame : Game
         this.vertices[2] = new Vector2(3, -6);
         this.vertices[3] = new Vector2(-3, -6);
         this.vertices[4] = new Vector2(-10, -10);
+
+        int triangleCount = this.vertices.Length - 2;
+
+        this.triangleIndices = new int[triangleCount * 3];
+        this.triangleIndices[0] = 0;
+        this.triangleIndices[1] = 1;
+        this.triangleIndices[2] = 2;
+        this.triangleIndices[3] = 0;
+        this.triangleIndices[4] = 2;
+        this.triangleIndices[5] = 3;
+        this.triangleIndices[6] = 0;
+        this.triangleIndices[7] = 3;
+        this.triangleIndices[8] = 4;
 
         base.Initialize();
     }
@@ -113,7 +127,7 @@ public class TestGame : Game
         FlatTransform transform = new FlatTransform(new Vector2(0f, 100f), this.angle, 2f);
 
         this.shapes.Begin(this.camera);
-        this.shapes.DrawPolygon(this.vertices, transform, 1f, Color.White);
+        this.shapes.DrawPolygonFill(this.vertices, triangleIndices, transform, Color.LightGreen);
         this.shapes.DrawCircleFill(-32, -32, 64, 48, Color.White);
         this.shapes.End();
 

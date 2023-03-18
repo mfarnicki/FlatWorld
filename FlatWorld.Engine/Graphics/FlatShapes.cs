@@ -231,7 +231,7 @@ public sealed class FlatShapes : IDisposable
 
         for (int i = 0; i < shapeTriangleCount; i++)
         {
-            this.indices[this.indexCount++] = 0 + this.vertexCount;
+            this.indices[this.indexCount++] = this.vertexCount;
             this.indices[this.indexCount++] = i + 1 + this.vertexCount;
             this.indices[this.indexCount++] = i + 2 + this.vertexCount;
         }
@@ -332,5 +332,37 @@ public sealed class FlatShapes : IDisposable
 
             this.DrawLine(a, b, thickness, color);
         }
+    }
+
+    public void DrawPolygonFill(Vector2[] vertices, int[] triangleIndices, FlatTransform transform, Color color)
+    {
+#if DEBUG
+        if (vertices?.Length < 3)
+        {
+            throw new ArgumentException(nameof(vertices));
+        }
+
+        if (triangleIndices?.Length < 3)
+        {
+            throw new ArgumentException(nameof(triangleIndices));
+        }
+#endif
+
+        this.EnsureStarted();
+        this.EnsureSpace(vertices.Length, triangleIndices.Length);
+
+        for (int i = 0; i < triangleIndices.Length; i++)
+        {
+            this.indices[this.indexCount++] = triangleIndices[i] + this.vertexCount;
+        }
+
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            Vector2 vertex = vertices[i];
+            vertex = FlatUtil.Transform(vertex, transform);
+            this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(vertex.X, vertex.Y, 0f), color);
+        }
+
+        this.shapeCount++;
     }
 }

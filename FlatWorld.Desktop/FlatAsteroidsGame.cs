@@ -27,6 +27,8 @@ public class FlatAsteroidsGame : Game
     private SoundEffect rocketSound;
     private SoundEffectInstance rocketSoundInstance;
 
+    private bool displayCollisionCircles = true;
+
     public FlatAsteroidsGame()
     {
         this.graphics = new GraphicsDeviceManager(this);
@@ -59,13 +61,13 @@ public class FlatAsteroidsGame : Game
         vertices[3] = new Vector2(-5, 3);
         vertices[4] = new Vector2(-10, 10);
 
-        MainShip player = new MainShip(vertices, Vector2.Zero, Color.LightGreen);
+        MainShip player = new MainShip(vertices, Vector2.Zero, Color.LightGreen, CommonDensities.Steel, 0.5f);
         this.entities.Add(player);
 
         int asteroidCount = 20;
         for (int i = 0; i < asteroidCount; i++)
         {
-            Asteroid asteroid = new Asteroid(rand, this.camera);
+            Asteroid asteroid = new Asteroid(rand, this.camera, CommonDensities.Rock, 0.6f);
             this.entities.Add(asteroid);
         }
 
@@ -85,6 +87,11 @@ public class FlatAsteroidsGame : Game
 
         var mouse = FlatMouse.Instance;
         mouse.Update();
+
+        if (keyboard.IsKeyClicked(Keys.B))
+        {
+            this.displayCollisionCircles = !this.displayCollisionCircles;
+        }
 
         if (keyboard.IsKeyClicked(Keys.A))
         {
@@ -139,8 +146,14 @@ public class FlatAsteroidsGame : Game
                 Entity b = this.entities[j];
                 FlatCircle cb = new FlatCircle(b.Position, b.CollisionCircleRadius);
 
-                if (PolygonHelper.IntersectCircles(ca, cb))
+                if (PolygonHelper.IntersectCircles(ca, cb, out float depth, out Vector2 normal))
                 {
+                    Vector2 mtv = depth * normal * 0.5f;
+                    a.Move(-mtv);
+                    b.Move(mtv);
+
+                    SolveCollision(a, b, normal);
+
                     a.CircleColor = Color.Red;
                     b.CircleColor = Color.Red;
                 }
@@ -157,12 +170,32 @@ public class FlatAsteroidsGame : Game
 
         this.shapes.Begin(this.camera);
 
-        this.entities.ForEach(e => e.Draw(this.shapes));
+        this.entities.ForEach(e => e.Draw(this.shapes, this.displayCollisionCircles));
 
         this.shapes.End();
         this.screen.UnSet();
         this.screen.Present(this.sprites);
 
         base.Draw(gameTime);
+    }
+
+    public static void SolveCollision(Entity a, Entity b, Vector2 normal)
+    {
+        Vector2 relVel = b.Velocity - a.Velocity;
+        float dotProduct = Vector2.Dot(relVel, normal);
+        if (dotProduct > 0f)
+        {
+            return;
+        }
+
+        float e = MathHelper.Min(a.Restitution, b.Restitution);
+
+        float j = -(1f + e) * dotProduct;
+        j /= a.InverseMass + b.InverseMass;
+
+        Vector2 impulse = j * normal;
+
+        a.Velocity -= a.InverseMass * impulse;
+        b.Velocity += b.InverseMass * impulse;
     }
 }

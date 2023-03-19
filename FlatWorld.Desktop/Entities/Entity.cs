@@ -18,11 +18,28 @@ public abstract class Entity
 
     public Color CircleColor;
 
+    protected float density;
+    protected float mass;
+    protected float invMass;
+    protected float restitution;
+
+    protected float area;
+
     public Vector2 Position => this.position;
 
     public float CollisionCircleRadius => this.radius;
 
-    public Entity(Vector2[] vertices, Vector2 position, Color color)
+    public Vector2 Velocity
+    {
+        get => this.velocity;
+        set => this.velocity = value;
+    }
+
+    public float Restitution => this.restitution;
+
+    public float InverseMass => this.invMass;
+
+    public Entity(Vector2[] vertices, Vector2 position, Color color, float density, float restitution)
     {
         this.vertices = vertices;
         this.position = position;
@@ -34,12 +51,23 @@ public abstract class Entity
         {
             this.radius = Entity.FindCollisionRadius(vertices);
         }
+
+        this.area = 0f;
+        this.density = Math.Clamp(density, CommonDensities.MinDensity, CommonDensities.MaxDensity);
+        this.restitution = Math.Clamp(restitution, 0f, 1f);
+        this.mass = 0f;
+        this.invMass = 1f;
     }
 
     protected static float FindCollisionRadius(Vector2[] vertices)
     {
         float polygonArea = PolygonHelper.FindPolygonArea(vertices);
         return MathF.Sqrt(polygonArea / MathHelper.Pi);
+    }
+
+    public void Move(Vector2 amount)
+    {
+        this.position += amount;
     }
 
     public virtual void Update(GameTime gameTime, FlatCamera camera)
@@ -58,11 +86,14 @@ public abstract class Entity
         this.CircleColor = Color.White;
     }
 
-    public virtual void Draw(FlatShapes shapes)
+    public virtual void Draw(FlatShapes shapes, bool displayCollisionCircles = false)
     {
         FlatTransform transform = new FlatTransform(this.position, this.angle, 1f);
         shapes.DrawPolygon(this.vertices, transform, 1f, this.color);
 
-        shapes.DrawCircle(this.position.X, this.position.Y, this.radius, 1f, 32, this.CircleColor);
+        if (displayCollisionCircles)
+        {
+            shapes.DrawCircle(this.position.X, this.position.Y, this.radius, 1f, 32, this.CircleColor);
+        }
     }
 }

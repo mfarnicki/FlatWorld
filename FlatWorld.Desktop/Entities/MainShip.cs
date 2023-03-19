@@ -12,8 +12,8 @@ public class MainShip : Entity
     private float randomRocketTime;
     private float randomRocketStartTime;
 
-    public MainShip(Vector2[] vertices, Vector2 position, Color color)
-    : base(vertices, position, color)
+    public MainShip(Vector2[] vertices, Vector2 position, Color color, float density, float restitution)
+    : base(vertices, position, color, density, restitution)
     {
         this.isRocketForce = false;
 
@@ -25,6 +25,9 @@ public class MainShip : Entity
         this.randomRocketTime = 60f;
         this.randomRocketStartTime = 0f;
 
+        this.area = MathHelper.Pi * this.radius * this.radius;
+        this.mass = this.area * density;
+        this.invMass = 1f / this.mass;
     }
 
     public void Rotate(float amount)
@@ -61,7 +64,7 @@ public class MainShip : Entity
         base.Update(gameTime, camera);
     }
 
-    public override void Draw(FlatShapes shapes)
+    public override void Draw(FlatShapes shapes, bool displayCollisionCircles)
     {
         if (this.isRocketForce)
         {
@@ -69,7 +72,7 @@ public class MainShip : Entity
             shapes.DrawPolygon(this.rocketVertices, transform, 1f, Color.Yellow);
         }
 
-        base.Draw(shapes);
+        base.Draw(shapes, displayCollisionCircles);
     }
 
     public void ApplyRocketForce(float amount)

@@ -7,8 +7,8 @@ namespace FlatWorld.Desktop.Entities;
 
 public class Asteroid : Entity
 {
-    public Asteroid(Random rand, FlatCamera camera)
-        : base(null, Vector2.Zero, Color.Brown)
+    public Asteroid(Random rand, FlatCamera camera, float density, float restitution)
+        : base(null, Vector2.Zero, Color.Brown, density, restitution)
     {
         const int minPoints = 6;
         const int maxPoints = 10;
@@ -53,5 +53,9 @@ public class Asteroid : Entity
         this.velocity = velocityDirection * speed;
 
         this.radius = Entity.FindCollisionRadius(this.vertices);
+
+        this.area = MathHelper.Pi * this.radius * this.radius;
+        this.mass = this.area * density;
+        this.invMass = 1f / this.mass;
     }
 }

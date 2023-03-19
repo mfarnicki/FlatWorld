@@ -37,4 +37,35 @@ public static class PolygonHelper
 
         return true;
     }
+
+    public static bool IntersectCircles(FlatCircle a, FlatCircle b, out float depth, out Vector2 normal)
+    {
+        depth = 0f;
+        normal = Vector2.Zero;
+
+        Vector2 n = b.Center - a.Center;
+        float distSquared = n.LengthSquared();
+        float r2 = a.Radius + b.Radius;
+        float radiusSquared = r2 * r2;
+
+        if (distSquared > radiusSquared)
+        {
+            return false;
+        }
+
+        float dist = MathF.Sqrt(distSquared);
+
+        if (dist != 0)
+        {
+            depth = r2 - dist;
+            normal = n / dist;
+        }
+        else
+        {
+            depth = r2;
+            normal = new Vector2(1f, 0f);
+        }
+
+        return true;
+    }
 }

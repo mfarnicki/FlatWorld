@@ -106,7 +106,7 @@ public class TestGame : Game
 
         if (keyboard.IsKeyClicked(Keys.F))
         {
-            FlatUtil.ToggleFullScreen(this.graphics);
+            FlatUtils.ToggleFullScreen(this.graphics);
         }
 
         this.angle += MathHelper.PiOver2 * (float)gameTime.ElapsedGameTime.TotalSeconds;

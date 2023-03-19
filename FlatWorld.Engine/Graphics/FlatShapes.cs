@@ -275,7 +275,7 @@ public sealed class FlatShapes : IDisposable
         float e1x = bx - ax;
         float e1y = by - ay;
 
-        Utils.Normalize(ref e1x, ref e1y);
+        FlatUtils.Normalize(ref e1x, ref e1y);
         e1x *= halfThickness;
         e1y *= halfThickness;
 
@@ -327,8 +327,8 @@ public sealed class FlatShapes : IDisposable
             Vector2 a = vertices[i];
             Vector2 b = vertices[(i + 1) % vertices.Length];
 
-            a = FlatUtil.Transform(a, transform);
-            b = FlatUtil.Transform(b, transform);
+            a = FlatUtils.Transform(a, transform);
+            b = FlatUtils.Transform(b, transform);
 
             this.DrawLine(a, b, thickness, color);
         }
@@ -359,7 +359,7 @@ public sealed class FlatShapes : IDisposable
         for (int i = 0; i < vertices.Length; i++)
         {
             Vector2 vertex = vertices[i];
-            vertex = FlatUtil.Transform(vertex, transform);
+            vertex = FlatUtils.Transform(vertex, transform);
             this.vertices[this.vertexCount++] = new VertexPositionColor(new Vector3(vertex.X, vertex.Y, 0f), color);
         }
 

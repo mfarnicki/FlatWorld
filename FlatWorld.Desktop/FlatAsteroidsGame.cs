@@ -1,8 +1,11 @@
+using System;
+using System.Collections.Generic;
 using FlatWorld.Desktop.Entities;
 using FlatWorld.Engine;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -18,8 +21,10 @@ public class FlatAsteroidsGame : Game
     private FlatSprites sprites;
     private FlatShapes shapes;
     private FlatCamera camera;
+    private List<Entity> entities;
 
-    private MainShip player;
+    private SoundEffect rocketSound;
+    private SoundEffectInstance rocketSoundInstance;
 
     public FlatAsteroidsGame()
     {
@@ -43,6 +48,9 @@ public class FlatAsteroidsGame : Game
         this.shapes = new FlatShapes(this);
         this.camera = new FlatCamera(this.screen);
 
+        Random rand = new Random();
+        this.entities = new List<Entity>();
+
         Vector2[] vertices = new Vector2[5];
         vertices[0] = new Vector2(10, 0);
         vertices[1] = new Vector2(-10, -10);
@@ -50,13 +58,23 @@ public class FlatAsteroidsGame : Game
         vertices[3] = new Vector2(-5, 3);
         vertices[4] = new Vector2(-10, 10);
 
-        this.player = new MainShip(vertices, Vector2.Zero, Color.LightGreen);
+        MainShip player = new MainShip(vertices, Vector2.Zero, Color.LightGreen);
+        this.entities.Add(player);
+
+        int asteroidCount = 5;
+        for (int i = 0; i < asteroidCount; i++)
+        {
+            Asteroid asteroid = new Asteroid(rand, this.camera);
+            this.entities.Add(asteroid);
+        }
 
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
+        this.rocketSound = this.Content.Load<SoundEffect>("explosion");
+        this.rocketSoundInstance = this.rocketSound.CreateInstance();
     }
 
     protected override void Update(GameTime gameTime)
@@ -77,23 +95,43 @@ public class FlatAsteroidsGame : Game
             this.camera.DecZoom();
         }
 
+        if (keyboard.IsKeyClicked(Keys.Q))
+        {
+            this.rocketSound.Play(0.3f, 0f, 0f);
+        }
+
+        MainShip player = (MainShip)this.entities[0];
         float playerRotationAmount = MathHelper.Pi * (float)gameTime.ElapsedGameTime.TotalSeconds;
+
         if (keyboard.IsKeyDown(Keys.Left))
         {
-            this.player.Rotate(playerRotationAmount);
+            player.Rotate(playerRotationAmount);
         }
 
         if (keyboard.IsKeyDown(Keys.Right))
         {
-            this.player.Rotate(-playerRotationAmount);
+            player.Rotate(-playerRotationAmount);
         }
 
         if (keyboard.IsKeyDown(Keys.Up))
         {
-            this.player.ApplyForce(50f * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            player.ApplyRocketForce(50f * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            if (this.rocketSoundInstance.State != SoundState.Playing)
+            {
+                this.rocketSoundInstance.Volume = 0.2f;
+                this.rocketSoundInstance.Play();
+            }
+        }
+        else
+        {
+            player.DisableRocketForce();
+            if (this.rocketSoundInstance.State == SoundState.Playing)
+            {
+                this.rocketSoundInstance.Stop();
+            }
         }
 
-        this.player.Update(gameTime, this.camera);
+        this.entities.ForEach(e => e.Update(gameTime, this.camera));
 
         base.Update(gameTime);
     }
@@ -104,7 +142,9 @@ public class FlatAsteroidsGame : Game
         this.GraphicsDevice.Clear(Color.Black);
 
         this.shapes.Begin(this.camera);
-        this.player.Draw(this.shapes);
+
+        this.entities.ForEach(e => e.Draw(this.shapes));
+
         this.shapes.End();
         this.screen.UnSet();
         this.screen.Present(this.sprites);

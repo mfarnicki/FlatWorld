@@ -4,6 +4,7 @@ using FlatWorld.Desktop.Entities;
 using FlatWorld.Engine;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
+using FlatWorld.Engine.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -61,7 +62,7 @@ public class FlatAsteroidsGame : Game
         MainShip player = new MainShip(vertices, Vector2.Zero, Color.LightGreen);
         this.entities.Add(player);
 
-        int asteroidCount = 5;
+        int asteroidCount = 20;
         for (int i = 0; i < asteroidCount; i++)
         {
             Asteroid asteroid = new Asteroid(rand, this.camera);
@@ -93,11 +94,6 @@ public class FlatAsteroidsGame : Game
         if (keyboard.IsKeyClicked(Keys.Z))
         {
             this.camera.DecZoom();
-        }
-
-        if (keyboard.IsKeyClicked(Keys.Q))
-        {
-            this.rocketSound.Play(0.3f, 0f, 0f);
         }
 
         MainShip player = (MainShip)this.entities[0];
@@ -132,6 +128,24 @@ public class FlatAsteroidsGame : Game
         }
 
         this.entities.ForEach(e => e.Update(gameTime, this.camera));
+
+        for (int i = 0; i < this.entities.Count - 1; i++)
+        {
+            Entity a = this.entities[i];
+            FlatCircle ca = new FlatCircle(a.Position, a.CollisionCircleRadius);
+
+            for (int j = i + 1; j < this.entities.Count; j++)
+            {
+                Entity b = this.entities[j];
+                FlatCircle cb = new FlatCircle(b.Position, b.CollisionCircleRadius);
+
+                if (PolygonHelper.IntersectCircles(ca, cb))
+                {
+                    a.CircleColor = Color.Red;
+                    b.CircleColor = Color.Red;
+                }
+            }
+        }
 
         base.Update(gameTime);
     }

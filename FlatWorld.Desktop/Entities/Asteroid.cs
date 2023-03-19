@@ -46,10 +46,12 @@ public class Asteroid : Entity
         this.position = new Vector2(px, py);
 
         const float minSpeed = 20f;
-        const float maxSpeed = 20f;
+        const float maxSpeed = 40f;
         Vector2 velocityDirection = FlatUtils.RandomDirection(rand);
         float speed = FlatUtils.RandomSingle(rand, minSpeed, maxSpeed);
 
         this.velocity = velocityDirection * speed;
+
+        this.radius = Entity.FindCollisionRadius(this.vertices);
     }
 }

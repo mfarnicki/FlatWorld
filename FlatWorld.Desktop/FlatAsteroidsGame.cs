@@ -64,7 +64,7 @@ public class FlatAsteroidsGame : Game
         MainShip player = new MainShip(vertices, Vector2.Zero, Color.LightGreen, CommonDensities.Steel, 0.5f);
         this.entities.Add(player);
 
-        int asteroidCount = 20;
+        int asteroidCount = 5;
         for (int i = 0; i < asteroidCount; i++)
         {
             Asteroid asteroid = new Asteroid(rand, this.camera, CommonDensities.Rock, 0.6f);
@@ -169,10 +169,9 @@ public class FlatAsteroidsGame : Game
         this.GraphicsDevice.Clear(Color.Black);
 
         this.shapes.Begin(this.camera);
-
         this.entities.ForEach(e => e.Draw(this.shapes, this.displayCollisionCircles));
-
         this.shapes.End();
+
         this.screen.UnSet();
         this.screen.Present(this.sprites);
 

@@ -12,6 +12,8 @@ public class MainShip : Entity
     private float randomRocketTime;
     private float randomRocketStartTime;
 
+    public float Angle => this.angle;
+
     public MainShip(Vector2[] vertices, Vector2 position, Color color, float density, float restitution)
     : base(vertices, position, color, density, restitution)
     {

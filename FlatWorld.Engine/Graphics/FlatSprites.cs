@@ -80,4 +80,9 @@ public sealed class FlatSprites : IDisposable
     {
         this.sprites.Draw(texture, destinationRectangle, sourceRectangle, color, 0f, Vector2.Zero, SpriteEffects.FlipVertically, 0f);
     }
+
+    public void DrawString(SpriteFont spriteFont, string text, Vector2 position, Color color)
+    {
+        this.sprites.DrawString(spriteFont, text, position, color, 0f, Vector2.Zero, 1f, SpriteEffects.FlipVertically, 0f);
+    }
 }

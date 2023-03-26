@@ -2,6 +2,7 @@ using System;
 using FlatWorld.Engine;
 using FlatWorld.Engine.Graphics;
 using FlatWorld.Engine.Input;
+using FlatWorld.Engine.Physics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,6 +14,10 @@ public class TestGame : Game
     private const int ScreenWidth = 1280;
     private const int ScreenHeight = 720;
 
+    private Vector2[] vertices;
+    private int[] triangles;
+    private FlatTransform transform = new FlatTransform(Vector2.Zero, 0f, 1f);
+
     private GraphicsDeviceManager graphics;
     private FlatSprites sprites;
     private FlatScreen screen;
@@ -20,9 +25,6 @@ public class TestGame : Game
     private FlatCamera camera;
 
     private Texture2D texture;
-
-    private Vector2[] vertices;
-    private int[] triangleIndices;
     private float angle = 0f;
 
     public TestGame()
@@ -45,26 +47,23 @@ public class TestGame : Game
         this.screen = new FlatScreen(this, TestGame.ScreenWidth, TestGame.ScreenHeight);
         this.shapes = new FlatShapes(this);
         this.camera = new FlatCamera(this.screen);
+        this.camera.SetZoom(FlatCamera.MaxZoom);
 
-        this.vertices = new Vector2[5];
-        this.vertices[0] = new Vector2(0, 10);
-        this.vertices[1] = new Vector2(10, -10);
-        this.vertices[2] = new Vector2(3, -6);
-        this.vertices[3] = new Vector2(-3, -6);
-        this.vertices[4] = new Vector2(-10, -10);
+        this.vertices = new Vector2[9];
+        this.vertices[0] = new Vector2(-4, 6);
+        this.vertices[1] = new Vector2(0, 2);
+        this.vertices[2] = new Vector2(2, 5);
+        this.vertices[3] = new Vector2(7, 0);
+        this.vertices[4] = new Vector2(5, -6);
+        this.vertices[5] = new Vector2(3, 3);
+        this.vertices[6] = new Vector2(0, -5);
+        this.vertices[7] = new Vector2(-6, 0);
+        this.vertices[8] = new Vector2(-2, 1);
 
-        int triangleCount = this.vertices.Length - 2;
-
-        this.triangleIndices = new int[triangleCount * 3];
-        this.triangleIndices[0] = 0;
-        this.triangleIndices[1] = 1;
-        this.triangleIndices[2] = 2;
-        this.triangleIndices[3] = 0;
-        this.triangleIndices[4] = 2;
-        this.triangleIndices[5] = 3;
-        this.triangleIndices[6] = 0;
-        this.triangleIndices[7] = 3;
-        this.triangleIndices[8] = 4;
+        if (!PolygonHelper.Triangulate(vertices, out triangles, out string errorMessage))
+        {
+            throw new Exception(errorMessage);
+        }
 
         base.Initialize();
     }
@@ -127,8 +126,9 @@ public class TestGame : Game
         FlatTransform transform = new FlatTransform(new Vector2(0f, 100f), this.angle, 2f);
 
         this.shapes.Begin(this.camera);
-        this.shapes.DrawPolygonFill(this.vertices, triangleIndices, transform, Color.LightGreen);
-        this.shapes.DrawCircleFill(-32, -32, 64, 48, Color.White);
+        // this.shapes.DrawPolygon(this.vertices, new FlatTransform(Vector2.Zero, 0f, 1f), 1f, Color.White);
+        this.shapes.DrawPolygonTriangles(this.vertices, this.triangles, this.transform, Color.White);
+        // this.shapes.DrawCircleFill(-32, -32, 64, 48, Color.White);
         this.shapes.End();
 
         this.screen.UnSet();

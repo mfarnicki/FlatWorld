@@ -365,4 +365,26 @@ public sealed class FlatShapes : IDisposable
 
         this.shapeCount++;
     }
+
+    public void DrawPolygonTriangles(Vector2[] vertices, int[] triangles, FlatTransform transform, Color color)
+    {
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            int a = triangles[i];
+            int b = triangles[i + 1];
+            int c = triangles[i + 2];
+
+            Vector2 va = vertices[a];
+            Vector2 vb = vertices[b];
+            Vector2 vc = vertices[c];
+
+            va = FlatUtils.Transform(va, transform);
+            vb = FlatUtils.Transform(vb, transform);
+            vc = FlatUtils.Transform(vc, transform);
+
+            this.DrawLine(va, vb, 1f, color);
+            this.DrawLine(vb, vc, 1f, color);
+            this.DrawLine(vc, va, 1f, color);
+        }
+    }
 }

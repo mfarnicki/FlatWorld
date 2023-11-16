@@ -186,6 +186,11 @@ public sealed class FlatShapes : IDisposable
         this.DrawLine(left, bottom, left, top, thickness, color);
     }
 
+    public void DrawRectangle(Rectangle rect, float thickness, Color color)
+    {
+        this.DrawRectangle(rect.X, rect.Y, rect.Width, rect.Height, thickness, color);
+    }
+
     public void DrawCircle(float x, float y, float radius, float thickness, int points, Color color)
     {
         const int MinPoints = 3;

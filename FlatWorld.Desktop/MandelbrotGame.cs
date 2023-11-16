@@ -16,7 +16,6 @@ public class MandelbrotGame : Game
     private FlatSprites sprites;
     private FlatScreen screen;
     private FlatShapes shapes;
-    private Texture2D texture;
 
     private Texture2D textureTest;
 
@@ -27,7 +26,8 @@ public class MandelbrotGame : Game
     private int iterations = 0;
 
     private Rectangle selectionRectangle;
-    private Vector4 currentRectangle;
+    private Vector4 currentViewVector;
+    private ColorFlags currentColor;
 
     public MandelbrotGame()
     {
@@ -35,7 +35,7 @@ public class MandelbrotGame : Game
         this.graphics.SynchronizeWithVerticalRetrace = true;
 
         this.Content.RootDirectory = "Content";
-        this.IsMouseVisible = true;
+        this.IsMouseVisible = false;
         this.IsFixedTimeStep = true;
     }
 
@@ -58,24 +58,31 @@ public class MandelbrotGame : Game
 
         this.selectionRectangle = Rectangle.Empty;
 
-        this.InitPixels(-2.5f, 1f, 0.5f, -1f);
+        this.Reset();
 
         base.Initialize();
     }
 
-    private void InitPixels(float left, float top, float right, float bottom)
+    private void Reset()
     {
-        this.currentRectangle = new Vector4(left, top, right, bottom);
-        float width = right - left;
-        float height = top - bottom;
+        this.currentColor = ColorFlags.All;
+        this.currentViewVector = new Vector4(-2.25f, 1f, 1f, -1f);
+        this.InitPixels(this.currentViewVector);
+    }
+
+    private void InitPixels(Vector4 viewVector)
+    {
+        this.currentViewVector = viewVector;
+        float width = viewVector.Z - viewVector.X;
+        float height = viewVector.Y - viewVector.W;
 
         for (int i = 0; i < this.pixelCoords.Length; i += 2)
         {
             float x = i / 2f % MandelbrotGame.ScreenWidth;
             float y = i / 2f / MandelbrotGame.ScreenWidth;
 
-            float ax = left + (x / MandelbrotGame.ScreenWidth) * width;
-            float ay = bottom + (y / MandelbrotGame.ScreenHeight) * height;
+            float ax = viewVector.X + (x / MandelbrotGame.ScreenWidth) * width;
+            float ay = viewVector.W + (y / MandelbrotGame.ScreenHeight) * height;
 
             this.pixelCoords[i] = ax;
             this.pixelCoords[i + 1] = ay;
@@ -89,9 +96,24 @@ public class MandelbrotGame : Game
         iterations = 0;
     }
 
-    protected override void LoadContent()
+    private void ToggleColor(ColorFlags colorFlag)
     {
-        this.texture = this.Content.Load<Texture2D>("face");
+        this.currentColor ^= colorFlag;
+        this.InitPixels(this.currentViewVector);
+    }
+
+    private void MoveView(int topBottom, int leftRight)
+    {
+        float width = this.currentViewVector.Z - this.currentViewVector.X;
+        float height = this.currentViewVector.Y - this.currentViewVector.W;
+
+        this.currentViewVector = new Vector4(
+            this.currentViewVector.X + leftRight * width / 10,
+            this.currentViewVector.Y + topBottom * height / 10,
+            this.currentViewVector.Z + leftRight * width / 10,
+            this.currentViewVector.W + topBottom * height / 10);
+
+        this.InitPixels(this.currentViewVector);
     }
 
     protected override void Update(GameTime gameTime)
@@ -103,11 +125,11 @@ public class MandelbrotGame : Game
         mouse.Update();
 
         Vector2 mousePos = mouse.GetScreenPosition(this.screen);
-        int oneSixthWidth = ScreenWidth / 6;
-        int oneSixthHeight = ScreenHeight / 6;
-        int newPosX = MathHelper.Clamp((int)mousePos.X, ScreenWidth / 6, ScreenWidth - ScreenWidth / 6);
-        int newPosY = MathHelper.Clamp((int)mousePos.Y, ScreenHeight / 6, ScreenHeight - ScreenHeight / 6);
-        this.selectionRectangle = new Rectangle(newPosX - oneSixthWidth, newPosY - oneSixthHeight, newPosX + oneSixthWidth, newPosY + oneSixthHeight);
+        int oneThirdWidth = ScreenWidth / 3;
+        int oneThirdHeight = ScreenHeight / 3;
+        int newPosX = MathHelper.Clamp((int)(mousePos.X - oneThirdWidth / 2), 0, ScreenWidth - oneThirdWidth);
+        int newPosY = MathHelper.Clamp((int)(mousePos.Y - oneThirdHeight / 2), 0, ScreenHeight - oneThirdHeight);
+        this.selectionRectangle = new Rectangle(newPosX, newPosY, oneThirdWidth, oneThirdHeight);
 
         if (keyboard.IsKeyClicked(Keys.Escape))
         {
@@ -120,30 +142,70 @@ public class MandelbrotGame : Game
             Console.WriteLine($"Screen position: {mouse.GetScreenPosition(this.screen)}");
         }
 
+        if (keyboard.IsKeyClicked(Keys.R))
+        {
+            this.ToggleColor(ColorFlags.Red);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.G))
+        {
+            this.ToggleColor(ColorFlags.Green);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.B))
+        {
+            this.ToggleColor(ColorFlags.Blue);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.Up))
+        {
+            this.MoveView(1, 0);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.Down))
+        {
+            this.MoveView(-1, 0);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.Left))
+        {
+            this.MoveView(0, 1);
+        }
+
+        if (keyboard.IsKeyClicked(Keys.Right))
+        {
+            this.MoveView(0, -1);
+        }
+
         if (mouse.IsLeftButtonClicked())
         {
-            float left = this.currentRectangle.X;
-            float top = this.currentRectangle.Y;
-            float right = this.currentRectangle.Z;
-            float bottom = this.currentRectangle.W;
+            float left = this.currentViewVector.X;
+            float top = this.currentViewVector.Y;
+            float right = this.currentViewVector.Z;
+            float bottom = this.currentViewVector.W;
 
             float width = right - left;
             float height = top - bottom;
 
             float newLeft = left + (float)this.selectionRectangle.Left / ScreenWidth * width;
-            float newRight = left + (float)this.selectionRectangle.Width / ScreenWidth * width;
-            float newTop = bottom + (float)(480 - this.selectionRectangle.Top) / ScreenHeight * height;
-            float newBottom = bottom + (float)this.selectionRectangle.Height / ScreenHeight * height;
+            float newRight = left + (float)this.selectionRectangle.Right / ScreenWidth * width;
 
-            this.InitPixels(newLeft, newTop, newRight, newBottom);
+            float newBottom = bottom + (float)(ScreenHeight - this.selectionRectangle.Bottom) / ScreenHeight * height;
+            float newTop = bottom + (float)(ScreenHeight - this.selectionRectangle.Top) / ScreenHeight * height;
+
+            this.InitPixels(new Vector4(newLeft, newTop, newRight, newBottom));
         }
 
         if (mouse.IsRightButtonClicked())
         {
-            this.InitPixels(-2.5f, 1f, 0.5f, -1f);
+            this.Reset();
         }
 
-        Color newColor = new Color((iterations * 8) % 255, (iterations * 8) % 255, 255);
+        int colorComponent = iterations * 8 % 255;
+        Color newColor = new Color(
+            this.currentColor.HasFlag(ColorFlags.Red) ? colorComponent : 255,
+            this.currentColor.HasFlag(ColorFlags.Green) ? colorComponent : 255,
+            this.currentColor.HasFlag(ColorFlags.Blue) ? colorComponent : 255);
 
         for (int i = 0; i < this.pixelCoords.Length; i += 2)
         {
@@ -188,12 +250,22 @@ public class MandelbrotGame : Game
         this.sprites.End();
 
         this.shapes.Begin(null);
-        this.shapes.DrawRectangle(this.selectionRectangle.X, this.selectionRectangle.Y, this.selectionRectangle.Width, this.selectionRectangle.Height, 1f, Color.DarkRed);
+        this.shapes.DrawRectangle(this.selectionRectangle, 1f, Color.HotPink);
         this.shapes.End();
 
         this.screen.UnSet();
         this.screen.Present(this.sprites);
 
         base.Draw(gameTime);
+    }
+
+    [Flags]
+    protected enum ColorFlags
+    {
+        None = 0,
+        Red = 1 << 0,
+        Green = 1 << 1,
+        Blue = 1 << 2,
+        All = Red | Green | Blue
     }
 }
